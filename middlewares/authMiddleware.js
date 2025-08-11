@@ -18,6 +18,10 @@ const isLoggedIn = async (req, res, next) => {
         token = req.cookies.token;
     }
 
+    console.log("Authorization header:", req.headers.authorization);
+    console.log("Token from cookie:", req.cookies.token);
+    console.log("Token extracted:", token);
+
     if (!token) {
         return next(new AppError('You are not logged in', 401));
     }
