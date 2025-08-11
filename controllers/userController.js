@@ -9,8 +9,10 @@ import crypto from "crypto";
 const cookieOptions = {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     httpOnly: true,
-    secure: true
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
 };
+
 
 const Register = async (req, res, next) => {
     const { fullName, email, password } = req.body;
@@ -130,7 +132,7 @@ const Logout = (req, res) => {
 
 };
 
-const getProfile = async(req, res, next) => {
+const getProfile = async (req, res, next) => {
     try {
         const userId = req.user.id;
         const user = await User.findById(userId);
