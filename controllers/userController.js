@@ -5,13 +5,13 @@ import fs from "fs";
 import sendEmail from "../utils/sendEmail.js";
 import crypto from "crypto";
 
-
 const cookieOptions = {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: process.env.NODE_ENV === 'production',  // HTTPS only in prod
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // None for prod (cross-site), lax for dev
 };
+
 
 
 const Register = async (req, res, next) => {
@@ -101,35 +101,30 @@ const Login = async (req, res, next) => {
         }
 
         const token = await user.generateJWTToken();
-        user.password = undefined; // Remove password from the response
+        user.password = undefined;
 
-        res.cookie('token', token, cookieOptions);
+        res.cookie('token', token, cookieOptions);  // Set cookie with options
 
         res.status(200).json({
             success: true,
             message: 'User logged in successfully',
-            user
+            user,
         });
-
     } catch (error) {
         return next(new AppError(error.message, 500));
     }
-
 };
 
 const Logout = (req, res) => {
-
     res.cookie('token', null, {
-        secure: true,
-        maxAge: 0,
-        httpOnly: true
+        ...cookieOptions,
+        maxAge: 0,   // Clear cookie immediately
     });
 
     res.status(200).json({
         success: true,
-        message: 'User logged out successfully'
+        message: 'User logged out successfully',
     });
-
 };
 
 const getProfile = async (req, res, next) => {
